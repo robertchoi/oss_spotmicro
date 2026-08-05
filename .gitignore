@@ -1,0 +1,9 @@
+.vscode/settings.json
+*.pyc
+
+.venv/
+.vscode/c_cpp_properties.json
+
+venv/
+env/
+.env

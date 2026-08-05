@@ -1,0 +1,8 @@
+Metadata-Version: 2.4
+Name: gym_spotmicroai
+Version: 0.1
+Requires-Dist: numpy
+Requires-Dist: pybullet>=3.0.6
+Requires-Dist: matplotlib>=3.5.0
+Requires-Dist: scipy>=1.7.0
+Dynamic: requires-dist
