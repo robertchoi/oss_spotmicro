@@ -3,13 +3,13 @@ Simulation of SpotMicroAI and it's Kinematics
 Use a keyboard to see how it works
 Use keyboard-Button to switch betweek walk on static-mode
 """
-from os import system, name
+from os import system, name 
 import sys
 sys.path.append("..")
 
 import matplotlib.animation as animation
 import numpy as np
-import time
+import time 
 import math
 import datetime as dt
 import keyboard
@@ -32,42 +32,42 @@ env=environment()
 
 def reset():
     global rtime
-    rtime=time.time()
+    rtime=time.time()    
 
 def resetPose():
     # TODO: globals are bad
     global joy_x, joy_z, joy_y, joy_rz,joy_z
     joy_x, joy_y, joy_z, joy_rz = 128, 128, 128, 128
 
-# define our clear function
+# define our clear function 
 def consoleClear():
 
-    # for windows
-    if name == 'nt':
-        _ = system('cls')
+    # for windows 
+    if name == 'nt': 
+        _ = system('cls') 
+  
+    # for mac and linux(here, os.name is 'posix') 
+    else: 
+        _ = system('clear') 
 
-    # for mac and linux(here, os.name is 'posix')
-    else:
-        _ = system('clear')
+robot=spotmicroai.Robot(True,True,reset)
+
+spurWidth=robot.W/2+20
+stepLength=0
+stepHeight=72
+iXf=120
+iXb=-132
+
+IDheight = p.addUserDebugParameter("height", -40, 90, 20)
+
+Lp = np.array([[iXf, -100, spurWidth, 1], [iXf, -100, -spurWidth, 1],
+[-50, -100, spurWidth, 1], [-50, -100, -spurWidth, 1]])
+
+resetPose()
+trotting=TrottingGait()
 
 def main(id, command_status):
-    # Initialize robot and variables inside main function to avoid duplicate GUI
-    robot = spotmicroai.Robot(False, True, reset)
-
-    spurWidth = robot.W/2+20
-    stepLength = 0
-    stepHeight = 72
-    iXf = 120
-    iXb = -132
-
-    IDheight = p.addUserDebugParameter("height", -40, 90, 20)
-
-    Lp = np.array([[iXf, -100, spurWidth, 1], [iXf, -100, -spurWidth, 1],
-    [-50, -100, spurWidth, 1], [-50, -100, -spurWidth, 1]])
-
-    resetPose()
-    trotting = TrottingGait()
-
+    
     s=False
 
     while True:
@@ -78,9 +78,9 @@ def main(id, command_status):
 
         if distance>50:
             robot.resetBody()
-
+    
         ir=xr/(math.pi/180)
-
+        
         d=time.time()-rtime
         height = p.readUserDebugParameter(IDheight)
 

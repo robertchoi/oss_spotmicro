@@ -1,7 +1,5 @@
-# Python 3.12 호환 버전
-# gym==0.17.2  # 빌드 문제로 주석 처리, 필요시 gymnasium 사용
-matplotlib>=3.5.0
-numpy>=1.21.0
-pybullet==3.0.6
-keyboard>=0.13.5
-scipy>=1.7.0
+gym==0.17.2
+matplotlib==3.3.2
+numpy==1.19.2
+pybullet==3.0.4
+keyboard==0.13.5
