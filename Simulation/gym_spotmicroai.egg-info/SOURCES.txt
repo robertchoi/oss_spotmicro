@@ -1,10 +1,7 @@
 README.md
 setup.py
-gym_spotmicroai/__init__.py
 gym_spotmicroai.egg-info/PKG-INFO
 gym_spotmicroai.egg-info/SOURCES.txt
 gym_spotmicroai.egg-info/dependency_links.txt
 gym_spotmicroai.egg-info/requires.txt
 gym_spotmicroai.egg-info/top_level.txt
-gym_spotmicroai/envs/__init__.py
-gym_spotmicroai/envs/spotmicroai_env.py

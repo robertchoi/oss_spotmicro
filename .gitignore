@@ -1,9 +1,30 @@
-.vscode/settings.json
+# Python
 *.pyc
-
+__pycache__/
+*.egg-info/
 .venv/
-.vscode/c_cpp_properties.json
-
 venv/
 env/
 .env
+
+# Editors / OS
+.vscode/settings.json
+.vscode/c_cpp_properties.json
+.DS_Store
+Thumbs.db
+
+# 학습 산출물 — 정책 가중치는 공개 저장소에 별도 배포한다
+rl/runs/
+runs/
+logs/
+tensorboard/
+
+# 어떤 문서도 참조하지 않는 대용량 미디어.
+# git rm --cached 만으로는 git add -A 에서 되돌아온다 (A 지적, 2026-08-20)
+study/minho/images/SpotMicro_new.xlsx
+study/minho/images/w02_RightLeg_Test.mp4
+
+# 대회 제출 문서 (내부 작업본)
+Docs/*.docx
+Docs/*.pdf
+Docs/.~lock.*

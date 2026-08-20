@@ -20,6 +20,7 @@ import spotmicroai
 import servo_controller
 
 from multiprocessing import Process
+from Common.gait_params import gaitPhases, supportRatio
 from Common.multiprocess_kb import (KeyInterrupt, keyboardAvailable,
                                     trimModes, TWIST_WARN_RATIO)
 from Common.web_control import startWebControl
@@ -73,6 +74,39 @@ def consoleClear():
 
 trotting=TrottingGait()
 
+# 무릎 각속도 실측. 예전에는 Sh*pi/t3 로 예측했는데 그 식에는 보폭 Sl 이 없다.
+# 스윙 중 무릎은 발을 Sh 만큼 올리는 동시에 보폭만큼 되돌려야 하므로 Sl 이 크면
+# 각속도도 커진다. Sl 을 -70 에서 -160 으로 키우면 실제로는 349 -> 580 도/s 가
+# 되는데 예측식은 같은 값을 계속 보여준다. 위험 구간에 들어가는데 화면은 조용하다.
+#
+# 그래서 명령한 관절각의 차분을 직접 잰다. 한 주기 동안의 최대값을 들고 있는다
+# (스윙은 주기의 일부라 순간값만 보면 대부분 0 이 나온다).
+_slewHist = []
+
+
+def resetSlew():
+    """보행이 멈추면 이력을 버린다. 다시 시작할 때 옛 최대값이 따라오지 않도록."""
+    global _slewHist
+    _slewHist = []
+
+
+def kneeSlew(jointAngles, now, window):
+    """무릎(theta3) 각속도의 최근 window(초) 내 최대값, 도/s."""
+    global _slewHist
+    knees = [float(j[2]) for j in jointAngles]
+    if _slewHist:
+        t0, prev = _slewHist[-1][0], _slewHist[-1][1]
+        dt = now - t0
+        if 0 < dt < 0.5:
+            rate = max(abs(k - p) for k, p in zip(knees, prev)) / dt * 180.0 / math.pi
+            _slewHist.append((now, knees, rate))
+        else:
+            _slewHist.append((now, knees, 0.0))
+    else:
+        _slewHist.append((now, knees, 0.0))
+    _slewHist = [h for h in _slewHist if now - h[0] <= window][-400:]
+    return max((h[2] for h in _slewHist if len(h) > 2), default=0.0)
+
 # 정지(준비) 자세. 보행 궤적의 기본 발 위치와 같은 값을 쓴다.
 # 예전에는 여기에 iXf=120 / spurWidth=robot.W/2+20 (=80) 을 따로 적어서
 # TrottingGait 의 Fo/Ro/Spf/Spr 과 어긋났고, 보행을 시작하는 순간 발이
@@ -120,6 +154,13 @@ def main(id, command_status, keyInputs=None):
         height = result_dict.get('height', 110.0)
         trotting.Sh = result_dict.get('Sh', 20.0)
 
+        # 궤적 타이밍. 주기 Tt 와 스윙 비율 duty 로 받아 t1/t3 으로 환산한다.
+        # t1/t3 을 따로 노출하면 하나만 만졌을 때 전진 속도와 네발지지 비율이 같이
+        # 움직여 무엇이 원인인지 알 수 없다 (work11 6.16.1 이 그 함정이었다).
+        # 보행 중이 아니어도 매 루프 갱신한다 - 상태판이 현재 값을 보여야 한다.
+        duty = result_dict.get('duty', 0.143)
+        trotting.t1, trotting.t3 = gaitPhases(result_dict)
+
         # 다리별 y 트림 (조립 오차 보정). 보행 중에는 positions() 안에서 적용되고
         # 정지 자세는 고정 배열이라 여기서 직접 더한다. 순서 0 FL, 1 FR, 2 RL, 3 RR
         trim = result_dict.get('IDtrim', [0.0] * 4)
@@ -148,6 +189,19 @@ def main(id, command_status, keyInputs=None):
         blocked = []
         ikFail = len(jointAngles) and bool(np.isnan(np.asarray(jointAngles)).any())
 
+        # 무릎 각속도 실측. 명령한 관절각에서 재므로 매단 상태에서도 정확하다.
+        #
+        # 보행 중일 때만 잰다. 보행/정지 전환은 한 루프에 자세가 통째로 바뀌므로
+        # 4662도/s 같은 값이 잡히는데, 그것은 궤적의 각속도가 아니라 자세 전환이다.
+        # 경고가 자주 틀리면 진짜 경고를 무시하게 된다. 실측 로그에서 800도/s 초과
+        # 1122 회 중 340 회가 정지 상태였다.
+        walking = bool(result_dict.get('StartStepping'))
+        if not walking:
+            resetSlew()
+        slew = kneeSlew(jointAngles, time.time(),
+                        (trotting.t1 + trotting.t3) / 1000.0) if (
+                            walking and len(jointAngles) and not ikFail) else 0.0
+
         # First Step doesn't contains jointAngles
         if len(jointAngles) and not ikFail:
             # Real Actuators
@@ -156,6 +210,9 @@ def main(id, command_status, keyInputs=None):
         if keyInputs is not None:
             keyInputs.runtime['blocked'] = blocked
             keyInputs.runtime['ikFail'] = bool(ikFail)
+            # 폰 UI 도 같은 실측값을 봐야 한다. 페이지에서 다시 계산하면
+            # 예전의 Sh*pi/t3 처럼 보폭을 놓친 식으로 되돌아간다.
+            keyInputs.runtime['slew'] = float(slew)
             
             # # Plot Robot Pose into Matplotlib for Debugging
             # TODO: Matplotplib animation
@@ -182,6 +239,20 @@ def main(id, command_status, keyInputs=None):
         print(f" 앞뒤 {pitchT:+.1f}   좌우 {rollT:+.1f}   대각 {twistT:+.1f}"
               f"  (대각차 {twistGap:.1f}mm){warn}")
         print(f" 몸통높이 {height:.0f} (t 높임 / g 낮춤)    발들어올림 Sh {trotting.Sh:.0f} (r/f)")
+        # 주기와 스윙 비율. 이 둘이 "얼마나 높이 드느냐" 와 "안 넘어지느냐" 를 정한다.
+        #   네발지지가 낮을수록 대각 두 발로 버티는 시간이 길어진다. IMU 가 없으므로
+        #   50% 아래로 내려가면 주저앉기 시작한다 (work11 6.16.1).
+        #   슬루율은 무릎이 요구받는 각속도다. DS3235 무부하 정격이 545도/s 다.
+        support = supportRatio(duty) * 100
+        speed = abs(result_dict['IDstepLength']) / (trotting.t1 + trotting.t3) * 1000
+        supportWarn = "  <-- 낮다. 대각 두 발로 버티는 시간이 길다" if support < 50 else ""
+        slewWarn = ("  <-- 정격 초과!!" if slew > 545
+                    else "  <-- 정격의 90%" if slew > 490 else "")
+        print(f" 주기 {trotting.t1 + trotting.t3:.0f}ms (c 느리게 / v 빠르게)"
+              f"   스윙비율 {duty:.2f} (b 늘림 / n 줄임)   t1/t3 {trotting.t1:.0f}/{trotting.t3:.0f}")
+        print(f" 네발지지 {support:.0f}%{supportWarn}")
+        print(f" 무릎슬루 {slew:.0f}도/s (실측, 정격 545){slewWarn}"
+              f"      전진속도 {speed:.0f}mm/s (이론, 미끄러짐 0 가정)")
         print(" y/h 앞뒤기울기   u/j 좌우기울기   p 트림리셋   space 정지   Ctrl-C 종료")
         if ikFail:
             print(" !! IK 도달 불가 - 서보 명령 중단. 몸통을 낮추거나(g) 보폭을 줄여라")
