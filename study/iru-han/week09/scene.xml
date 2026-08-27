@@ -1,0 +1,4 @@
+<mujoco model="SpotMicro_FullScene">
+    <include file="ground_and_light_template.xml"/>
+    <include file="spot_micro_mujoco.xml"/>
+</mujoco>

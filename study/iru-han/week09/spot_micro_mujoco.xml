@@ -1,0 +1,192 @@
+<mujoco model="spot">
+    <compiler angle="radian" autolimits="true" texturedir="assets" meshdir="assets" balanceinertia="true"/>
+    <option timestep="0.001" iterations="50" solver="PGS" cone="elliptic"/>
+
+    <default>
+        <material specular="0" shininess="0.25"/>
+        <default class="spot">
+        <joint damping="20.0" frictionloss="0.1"/>
+
+        <default class="visual">
+            <geom type="mesh" contype="0" conaffinity="0" group="2"/>
+            <default class="visual_zflip">
+            <geom quat="0 0 0 1"/>
+            </default>
+        </default>
+        <default class="collision">
+            <geom group="3" type="cylinder" contype="1" conaffinity="0" />
+            <default class="foot">
+            <geom type="sphere" size="0.03" pos="0 0 0.02325" priority="1" condim="6"
+                solimp="0.9 0.95 0.001" friction="2.0 0.05 0.01" />
+<!--                  solimp="0.015 1 0.031" friction="0.8 0.02 0.01" />-->
+            </default>
+        </default>
+
+        <default class="affine">
+            <position kp="1000" ctrlrange="-6.28 6.28" forcerange="-100 100"/>
+        </default>
+        </default>
+    </default>
+
+    <asset>
+        <material name="base" texture="base"/>
+
+        <texture type="2d" name="base" file="spot_mat.png"/>
+
+        <mesh file="body.obj"/>
+
+        <mesh file="front_left_hip.obj"/>
+        <mesh file="front_right_hip.obj"/>
+        <mesh file="rear_left_hip.obj"/>
+        <mesh file="rear_right_hip.obj"/>
+
+        <mesh file="front_left_upper_leg.obj" />
+        <mesh file="front_right_upper_leg.obj" />
+        <mesh file="rear_left_upper_leg.obj" />
+        <mesh file="rear_right_upper_leg.obj" />
+
+        <mesh file="front_left_lower_leg.obj" />
+        <mesh file="front_right_lower_leg.obj" />
+        <mesh file="rear_left_lower_leg.obj" />
+        <mesh file="rear_right_lower_leg.obj" />
+
+        <mesh file="body_collision.stl"/>
+
+        <mesh file="front_left_hip_collision.stl"/>
+        <mesh file="front_right_hip_collision.stl"/>
+        <mesh file="rear_left_hip_collision.stl"/>
+        <mesh file="rear_right_hip_collision.stl"/>
+
+        <mesh file="front_left_upper_leg_collision.stl" />
+        <mesh file="front_right_upper_leg_collision.stl" />
+        <mesh file="rear_left_upper_leg_collision.stl" />
+        <mesh file="rear_right_upper_leg_collision.stl" />
+
+        <mesh file="front_left_lower_leg_collision.stl" />
+        <mesh file="front_right_lower_leg_collision.stl" />
+        <mesh file="rear_left_lower_leg_collision.stl" />
+        <mesh file="rear_right_lower_leg_collision.stl" />
+    </asset>
+
+    <worldbody>
+        <light name="spotlight" mode="targetbodycom" target="base" pos="0 -1 2" cutoff="30"/>
+<!--        <body name="base" pos="0 0 0.4" quat="1 0 0 0" childclass="spot">-->
+        <body name="base" pos="0 0 0.8" quat="1 1 0 0" childclass="spot">
+            <freejoint/>
+            <inertial mass="16.25" pos="0 0 0" diaginertia="0.085 1.045 1.042"/>
+            <geom mesh="body" material="base" class="visual"/>
+            <geom mesh="body_collision" class="collision"/>
+
+            <body name="FL_hip" pos="0.29785 0 -0.05500">
+                <inertial mass="1.5" pos="0 0 0" diaginertia="0.0605 0.0 0.0"/>
+                <joint name="front_left_hip_x" type="hinge" pos="0 0 0" axis="1 0 0" range="-1.57 1.57" damping="20.0"/>
+                <geom material="base" mesh="front_left_hip" class="visual"/>
+                <geom mesh="front_left_hip_collision" class="collision" quat="1 -1 0 0"/>
+
+                <body name="FL_upper_leg" pos="0.0 0.0 -0.110945">
+                    <inertial mass="1.5" pos="0 0 0" diaginertia="0.0 0.5 0.0"/>
+                    <joint name="front_left_upper_leg_x" type="hinge" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" damping="20.0"/>
+                    <geom material="base" mesh="front_left_upper_leg" class="visual"/>
+                    <geom mesh="front_left_upper_leg_collision" class="collision" quat="1 -1 0 0"/>
+
+                    <body name="FL_lower_leg" pos="0.025 -0.3205 0">
+                        <inertial mass="1.5" pos="0 0 0" diaginertia="0.0 0.045 0.0"/>
+                        <joint name="front_left_lower_leg_x" type="hinge" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" damping="20.0"/>
+                        <geom material="base" mesh="front_left_lower_leg" class="visual"/>
+                        <geom mesh="front_left_lower_leg_collision" class="collision" quat="1 -1 0 0"/>
+
+                        <geom class="foot" name="FL_foot" pos="0 -0.37 0"/>
+                    </body>
+                </body>
+            </body>
+
+            <body name="FR_HIP" pos="0.29785 0 +0.05500">
+                <inertial mass="1.5" pos="0 0 0" diaginertia="0.0605 0.0 0.0"/>
+                <joint name="front_right_hip_x" type="hinge" pos="0 0 0" axis="1 0 0" range="-1.57 1.57" damping="20.0"/>
+                <geom material="base" mesh="front_right_hip" class="visual"/>
+                <geom mesh="front_right_hip_collision" class="collision" quat="1 -1 0 0"/>
+
+                <body name="FR_upper_leg" pos="0.0 0.0 +0.110945">
+                    <inertial mass="1.5" pos="0 0 0" diaginertia="0.0 0.5 0.0"/>
+                    <joint name="front_right_upper_leg_x" type="hinge" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" damping="20.0"/>
+                    <geom material="base" mesh="front_right_upper_leg" class="visual"/>
+                    <geom mesh="front_right_upper_leg_collision" class="collision" quat="1 -1 0 0"/>
+
+                    <body name="FR_lower_leg" pos="0.025 -0.3205 0">
+                        <inertial mass="1.5" pos="0 0 0" diaginertia="0.0 0.045 0.0"/>
+                        <joint name="front_right_lower_leg_x" type="hinge" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" damping="20.0"/>
+                        <geom material="base" mesh="front_right_lower_leg" class="visual"/>
+                        <geom mesh="front_right_lower_leg_collision" class="collision" quat="1 -1 0 0"/>
+
+                        <geom class="foot" name="FR_foot" pos="0 -0.37 0"/>
+                    </body>
+                </body>
+            </body>
+
+            <body name="RL_HIP" pos="-0.29785 0 -0.05500">
+                <inertial mass="1.5" pos="0 0 0" diaginertia="0.0605 0.0 0.0"/>
+                <joint name="rear_left_hip_x" type="hinge" pos="0 0 0" axis="1 0 0" range="-1.57 1.57" damping="20.0"/>
+                <geom material="base" mesh="rear_left_hip" class="visual"/>
+                <geom mesh="rear_left_hip_collision" class="collision" quat="1 -1 0 0"/>
+
+                <body name="RL_upper_leg" pos="0.0 0.0 -0.110945">
+                    <inertial mass="1.5" pos="0 0 0" diaginertia="0.0 0.5 0.0"/>
+                    <joint name="rear_left_upper_leg_x" type="hinge" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" damping="20.0"/>
+                    <geom material="base" mesh="rear_left_upper_leg" class="visual"/>
+                    <geom mesh="rear_left_upper_leg_collision" class="collision" quat="1 -1 0 0"/>
+
+                    <body name="RL_lower_leg" pos="0.025 -0.3205 0">
+                        <inertial mass="1.5" pos="0 0 0" diaginertia="0.0 0.045 0.0"/>
+                        <joint name="rear_left_lower_leg_x" type="hinge" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" damping="20.0"/>
+                        <geom material="base" mesh="rear_left_lower_leg" class="visual"/>
+                        <geom mesh="rear_left_lower_leg_collision" class="collision" quat="1 -1 0 0"/>
+
+                        <geom class="foot" name="RL_foot" pos="0 -0.37 0"/>
+                    </body>
+                </body>
+            </body>
+
+            <body name="RR_HIP" pos="-0.29785 0 +0.05500">
+                <inertial mass="1.5" pos="0 0 0" diaginertia="0.0605 0.0 0.0"/>
+                <joint name="rear_right_hip_x" type="hinge" pos="0 0 0" axis="1 0 0" range="-1.57 1.57" damping="20.0"/>
+                <geom material="base" mesh="rear_right_hip" class="visual"/>
+                <geom mesh="rear_right_hip_collision" class="collision" quat="1 -1 0 0"/>
+
+                <body name="RR_upper_leg" pos="0.0 0.0 +0.110945">
+                    <inertial mass="1.5" pos="0 0 0" diaginertia="0.0 0.5 0.0"/>
+                    <joint name="rear_right_upper_leg_x" type="hinge" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" damping="20.0"/>
+                    <geom material="base" mesh="rear_right_upper_leg" class="visual"/>
+                    <geom mesh="rear_right_upper_leg_collision" class="collision" quat="1 -1 0 0"/>
+
+                    <body name="RR_lower_leg" pos="0.025 -0.3205 0">
+                        <inertial mass="1.5" pos="0 0 0" diaginertia="0.0 0.045 0.0"/>
+                        <joint name="rear_right_lower_leg_x" type="hinge" pos="0 0 0" axis="0 0 1" range="-3.14 3.14" damping="20.0"/>
+                        <geom material="base" mesh="rear_right_lower_leg" class="visual"/>
+                        <geom mesh="rear_right_lower_leg_collision" class="collision" quat="1 -1 0 0"/>
+
+                        <geom class="foot" name="RR_foot" pos="0 -0.37 0"/>
+                    </body>
+                </body>
+            </body>
+
+        </body>
+    </worldbody>
+
+  <actuator>
+    <position class="affine" joint="front_left_hip_x" name="front_left_hip_x"/>
+    <position class="affine" joint="front_left_upper_leg_x" name="front_left_upper_leg_x"/>
+    <position class="affine" joint="front_left_lower_leg_x" name="front_left_lower_leg_x"/>
+
+    <position class="affine" joint="front_right_hip_x" name="front_right_hip_x"/>
+    <position class="affine" joint="front_right_upper_leg_x" name="front_right_upper_leg_x"/>
+    <position class="affine" joint="front_right_lower_leg_x" name="front_right_lower_leg_x"/>
+
+    <position class="affine" joint="rear_left_hip_x" name="rear_left_hip_x"/>
+    <position class="affine" joint="rear_left_upper_leg_x" name="rear_left_upper_leg_x"/>
+    <position class="affine" joint="rear_left_lower_leg_x" name="rear_left_lower_leg_x"/>
+
+    <position class="affine" joint="rear_right_hip_x" name="rear_right_hip_x"/>
+    <position class="affine" joint="rear_right_upper_leg_x" name="rear_right_upper_leg_x"/>
+    <position class="affine" joint="rear_right_lower_leg_x" name="rear_right_lower_leg_x"/>
+  </actuator>
+</mujoco>

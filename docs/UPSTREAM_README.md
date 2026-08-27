@@ -1,3 +1,16 @@
+<!--
+  상속받은 upstream(Road-Balance) README 원본입니다. 귀속을 위해 보존합니다.
+  본 팀이 손댄 곳은 이미지 상대경로 다섯 곳뿐입니다. 이 파일이 저장소 루트에서
+  docs/ 로 옮겨지면서 Images/ 와 ./Images/ 가 docs/Images/ 로 해석돼 그림이 깨져
+  있었고, ../Images/ 로 바로잡았습니다. 본문은 고치지 않았습니다.
+
+  마크다운 세 곳(SpotForward, Pybullet_RB, SkyWalk)과 HTML img 두 곳
+  (Readme_Parts2, SpotMicroAI_electronics)입니다.
+
+  맨 아래 로고는 gitlab.com/custom_robots 를 가리키는데 그 저장소는 공개적으로
+  접근할 수 없습니다(HTTP 403). 원본을 남겨 두는 것이 기록이므로 지우지 않습니다.
+-->
+
 # SpotMicroAI - Road Balance version
 
 ### news
@@ -5,7 +18,7 @@
 - And also there's Notion Note for whole project process [Notion Link](https://www.notion.so/SpotMicro-for-G-Camp-c541934a4bad4ad48d1e37ab94c10de8) 
 - Those Contents above are written in Korean
 
-![SpotForward](Images/SpotForward.gif)
+![SpotForward](../Images/SpotForward.gif)
 
 ## Abstract:
 
@@ -14,7 +27,7 @@ Let's build quadruped robot. Only requires few low-cost parts and this repositor
 ## Hardware:
 
 <center>
-    <img src="./Images/Readme_Parts2.jpg" width="50%" height="50%">
+    <img src="../Images/Readme_Parts2.jpg" width="50%" height="50%">
 </center>
 
 The hardware for SpotMicroAI is designed to be both aesthetically pleasing as well as easily obtainable and readily available. Wherever possible standard screws, bolts, and bearings are used. Standard hobby grade servos are currently used for locomotion in development however, they don't appear to have sufficient power to drive the robot at more than the slowest speeds. Other options are currently being investigated (including high-voltage and brushless hobby servos typically used with RC cars) which we hope will lead to a balance between an economical as well as robust robot.
@@ -28,14 +41,14 @@ The files available both as STL and STP. As a community we have not yet settled 
 ## Electronics:
 
 <center>
-    <img src="./Images/SpotMicroAI_electronics.png" width="50%" height="50%">
+    <img src="../Images/SpotMicroAI_electronics.png" width="50%" height="50%">
 </center>
 
 The `Jetson Nano` operates at 5v, and the `PCA9658` for driving the servomotor operates at 6v. In this project, the electronic department was constructed using 7.9v LiPo batteries and `LM2596` DC Converter.
 
 
 ## PyBullet Simulation:
-![PyBullet Simulation](Images/SpotMicroAI_Pybullet_RB.png)
+![PyBullet Simulation](../Images/SpotMicroAI_Pybullet_RB.png)
 
 Before making the actual robot, we recommend experimenting with the kinematics and walking mechanism of the robot through simulation, and added a simulated environment built with pybullets to this end.
 
@@ -43,7 +56,7 @@ The walking mechanism can be understood through the adjustment of several parame
 
 ## Real Robots
 
-![SkyWalk](Images/SkyWalk.gif)
+![SkyWalk](../Images/SkyWalk.gif)
 
 Finally, it's time to have a real robot and run it. Before uploading and operating the software after assembly, the debugging points such as calibration, center of gravity, and component placement of servo motor are organized and written in Readme file.
 

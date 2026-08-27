@@ -1,0 +1,5 @@
+<mujoco model="SpotMicro_World">
+    <include file="ground_and_light_template.xml"/>
+    <include file="stairs_mujoco.xml"/>
+    <include file="spot_micro_mujoco.xml"/>
+</mujoco>

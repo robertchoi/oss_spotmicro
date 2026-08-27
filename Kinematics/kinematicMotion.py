@@ -97,12 +97,15 @@ class TrottingGait:
         # 발 들어올림 높이. 스윙 t3 안에 Sh 를 올리고 보폭만큼 되돌려야 하므로
         # 무릎이 요구받는 각속도를 Sh 가 지배한다 (t3=200ms, 실측 링크 기준):
         #     Sh=20 -> 250도/s,  Sh=25 -> 313,  Sh=30 -> 375,  Sh=40 -> 501
-        # DS3235 무부하 정격 545도/s (0.11s/60도). 링크 길이를 실측값으로 바로잡으면서
+        # DS3235 무부하 정격은 6V 에서 500도/s 다 (Common/servo_map.py).
+        # 링크 길이를 실측값으로 바로잡으면서
         # 같은 수직 이동에 필요한 무릎 회전이 줄어 여유가 늘었다
         # (구 모델에서는 Sh=40 이 739도/s 로 정격을 넘었다).
         #
-        # 위 표는 t3=200 일 때다. 슬루율은 Sh 가 아니라 Sh/t3 이 정하므로 t3 를 늘리면
-        # 같은 Sh 가 더 싸진다 — Sh=30/t3=400 은 188도/s 로 지금(250)보다도 낮다.
+        # 위 표는 t3=200 일 때다. 슬루율은 Sh 가 아니라 Sh/t3 이 정하므로, t3 를 늘리면
+        # 같은 Sh 를 내는 데 드는 무릎 각속도가 줄어든다 — 발을 같은 높이로 들되
+        # 더 긴 시간에 걸쳐 들어올리기 때문이다. Sh=30/t3=400 은 188도/s 로
+        # 지금(250)보다도 낮다.
         # 그래서 Sh 상한을 40 까지 열어두되, 올릴 때는 duty 를 같이 올려야 한다.
         #
         # 순 전진 = |Sl| x (스윙 중 발이 실제로 떠 있는 비율) 이다. 발이 전혀 안 뜨면
@@ -185,7 +188,14 @@ class TrottingGait:
             return self.yawRotate(curLp,-self.Sa/2.0+self.Sa*tp)
         elif(t<self.t0+self.t1+self.t2):
             return endLp
-        elif(t<self.t0+self.t1+self.t2+self.t3): # Lift foot
+        else: # Lift foot
+            # else 여야 한다. elif(t < t0+t1+t2+t3) 로 두면 t 가 정확히 Tt 일 때
+            # 아무것도 반환하지 않고, positions() 의 np.array 가 그 None 을 만나
+            # 제어 루프가 죽는다. positions() 는 t2=(pt-Tt/2)%Tt 를 쓰는데,
+            # pt 가 Tt/2 보다 아주 조금 작으면 그 뺄셈이 -1e-13 이 되고
+            # (-1e-13) % 1400.0 은 부동소수 반올림으로 정확히 1400.0 을 낸다.
+            # tp 가 1 이면 이 분기는 startLp 를 그대로 돌려주므로 (들어올림 항도 0),
+            # 주기 시작점과 같은 값이다 - else 로 두는 것이 맞는 값이기도 하다.
             td=t-(self.t0+self.t1+self.t2)
             tp=td/self.t3   # 위와 동일한 이유
             diffLp=startLp-endLp
